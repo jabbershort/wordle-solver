@@ -85,37 +85,54 @@ def sortWordsByScore(words,probDict):
     sorted_words = []
     for key in sorted_dict.keys():
         sorted_words.append(key)
-    printNum = min(10,len(sorted_words))
+    printNum = min(5,len(sorted_words))
     print("There are {} solutions, with the top {} being {}".format(len(sorted_words),printNum,sorted_words[0:printNum]))
+    if printNum == 5:
+        removeWordsWithDupLetters(sorted_words)
     return sorted_words
 
+def removeWordsWithDupLetters(words):
+    removedDups = []
+    for word in words:
+        repeatingLetters = False
+        for c in word:
+            if word.count(c) > 1:
+                repeatingLetters = True
+        if not repeatingLetters:
+            removedDups.append(word)
+    printNum = min(5,len(removedDups))
+    print("There are {} solutions with no repeating letters, with the top {} being {}".format(len(removedDups),printNum,removedDups[0:printNum]))
+    return removedDups
 if __name__ == "__main__":
-    charProb = characterProbability()
-    print("First guess.")
-    sortWordsByScore(loadWords(), charProb)
-    banList = ['s','t','m','a','n','d','y','f','c']
+    banList = ['a','o','s','e','p','t','g']
 
-    known = ['','o','','','e']
+    known = ['','r','i','n','']
 
     impossibleCharacters = [
         [],
-        ['e'],
-        ['o'],
         [],
-        []
+        [],
+        [],
+        ['d']
         ]
+    
+    charProb = characterProbability()
+    print("First guess.")
+    if len(banList) == 0:
+        sortWordsByScore(loadWords(), charProb)
 
     solutions1 = guessWord(banList)
     print("After first filter, grey letters.") 
     sortWordsByScore(solutions1, charProb)
     
-
-    solutions2 = knownCharacters(solutions1,known) 
-    print("After second filter, green letters") 
-    sortWordsByScore(solutions2, charProb)
-
-
-    solutions3 = possibleChars(solutions2,impossibleCharacters)
+    if known[0] == '' and known[1] == '' and known[2] == '' and known[3] == '' and known[4] == '':
+        solutions3 = possibleChars(solutions1, impossibleCharacters)
+    else:
+        solutions2 = knownCharacters(solutions1,known) 
+        print("After second filter, green letters") 
+        sortWordsByScore(solutions2, charProb)
+        solutions3 = possibleChars(solutions2,impossibleCharacters)
+    
     print("After third filter, yellow letters")
     sortWordsByScore(solutions3, charProb)
 
