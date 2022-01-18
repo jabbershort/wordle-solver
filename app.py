@@ -4,8 +4,6 @@ from string import ascii_lowercase
 from collections import Counter
 import collections
 
-from sympy import N
-
 def loadWords():
     filePath = os.path.dirname(os.path.realpath(__file__)) + "//words.txt"
     words = []
@@ -62,8 +60,7 @@ def possibleChars(words,knownPossibilites):
             acceptableWords.append(word)
     return acceptableWords
 
-def characterProbability():
-    words = loadWords()
+def characterProbability(words):
     countDict = {}
     probDict = {}
     letterSum = 0
@@ -75,7 +72,8 @@ def characterProbability():
         probDict[c] = countDict[c]/letterSum
     return probDict
 
-def sortWordsByScore(words,probDict):
+def sortWordsByScore(words):
+    probDict = characterProbability(words)
     scoredDict = {}
     for word in words:
         score = 1
@@ -116,9 +114,8 @@ def commandLineApp():
         []
         ]  
 
-    charProb = characterProbability()
     optionList = loadWords()
-    sortWordsByScore(optionList,charProb)
+    sortWordsByScore(optionList)
 
     while True:
         success = input("Was the guess successful? (Y/n) ")
@@ -130,7 +127,7 @@ def commandLineApp():
             greenLettersList = greenLetters.split(",")
             for i in range(0,5):
                 if greenLettersList[i] != '':
-                    print(greenLettersList[i])
+#                    print(greenLettersList[i])
                     known[i] = greenLettersList[i]
 
         yellowLetters = input("Please type any yellow characters, separated by a comma: ")
@@ -158,7 +155,7 @@ def commandLineApp():
             solutions2 = knownCharacters(solutions1,known) 
             optionList = possibleChars(solutions2,impossibleCharacters)
 
-        sortWordsByScore(optionList, charProb)
+        sortWordsByScore(optionList)
 
 def manualSolver():
     banList = []
@@ -173,25 +170,24 @@ def manualSolver():
         []
         ]
     
-    charProb = characterProbability()
     print("First guess.")
     if len(banList) == 0:
-        sortWordsByScore(loadWords(), charProb)
+        sortWordsByScore(loadWords())
 
     solutions1 = guessWord(banList)
     print("After first filter, grey letters.") 
-    sortWordsByScore(solutions1, charProb)
+    sortWordsByScore(solutions1)
     
     if known[0] == '' and known[1] == '' and known[2] == '' and known[3] == '' and known[4] == '':
         solutions3 = possibleChars(solutions1, impossibleCharacters)
     else:
         solutions2 = knownCharacters(solutions1,known) 
         print("After second filter, green letters") 
-        sortWordsByScore(solutions2, charProb)
+        sortWordsByScore(solutions2)
         solutions3 = possibleChars(solutions2,impossibleCharacters)
     
     print("After third filter, yellow letters")
-    sortWordsByScore(solutions3, charProb)
+    sortWordsByScore(solutions3)
 
 
 if __name__ == "__main__":
