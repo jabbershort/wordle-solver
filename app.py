@@ -4,6 +4,8 @@ from string import ascii_lowercase
 from collections import Counter
 import collections
 
+from sympy import N
+
 def loadWords():
     filePath = os.path.dirname(os.path.realpath(__file__)) + "//words.txt"
     words = []
@@ -12,8 +14,7 @@ def loadWords():
         words.append(word.strip())
     return words
 
-def guessWord(banList):
-    words = loadWords()
+def guessWord(words,banList):
     acceptableWords = []
     for word in words:
         passed = True
@@ -103,17 +104,73 @@ def removeWordsWithDupLetters(words):
     printNum = min(5,len(removedDups))
     print("There are {} solutions with no repeating letters, with the top {} being {}".format(len(removedDups),printNum,removedDups[0:printNum]))
     return removedDups
-if __name__ == "__main__":
-    banList = ['a','o','s','e','p','t','g']
 
-    known = ['','r','i','n','']
+def commandLineApp():
+    banList = []
+    known = ['','','','','']
+    impossibleCharacters = [
+        [],
+        [],
+        [],
+        [],
+        []
+        ]  
+
+    charProb = characterProbability()
+    optionList = loadWords()
+    sortWordsByScore(optionList,charProb)
+
+    while True:
+        success = input("Was the guess successful? (Y/n) ")
+        if success in ["Y","y",""]:
+            quit()
+
+        greenLetters = input("Please type any green characters, separated with a comma: ")
+        if greenLetters != "":
+            greenLettersList = greenLetters.split(",")
+            for i in range(0,5):
+                if greenLettersList[i] != '':
+                    print(greenLettersList[i])
+                    known[i] = greenLettersList[i]
+
+        yellowLetters = input("Please type any yellow characters, separated by a comma: ")
+        if yellowLetters != "":
+            yellowCharsList = yellowLetters.split(",")
+            for i in range(0,5):
+                if yellowCharsList[i] == '':
+                    continue
+                impossibleCharacters[i].append(yellowCharsList[i])
+
+        banChars = input("Please list the grey characters seperated by a comma: ")
+        if banChars != "":
+            banCharsListInput = banChars.split(",")
+            for i in range(0,len(banCharsListInput)):
+                if banCharsListInput[i] in known or banCharsListInput[i] in impossibleCharacters:
+                    continue
+                else:
+                    banList.append(banCharsListInput[i])
+
+        solutions1 = guessWord(optionList,banList)
+
+        if known[0] == '' and known[1] == '' and known[2] == '' and known[3] == '' and known[4] == '':
+            optionList = possibleChars(solutions1, impossibleCharacters)
+        else:
+            solutions2 = knownCharacters(solutions1,known) 
+            optionList = possibleChars(solutions2,impossibleCharacters)
+
+        sortWordsByScore(optionList, charProb)
+
+def manualSolver():
+    banList = []
+
+    known = ['','','','','']
 
     impossibleCharacters = [
         [],
         [],
         [],
         [],
-        ['d']
+        []
         ]
     
     charProb = characterProbability()
@@ -136,3 +193,6 @@ if __name__ == "__main__":
     print("After third filter, yellow letters")
     sortWordsByScore(solutions3, charProb)
 
+
+if __name__ == "__main__":
+    commandLineApp()
