@@ -72,6 +72,48 @@ def characterProbability(words):
         probDict[c] = countDict[c]/letterSum
     return probDict
 
+def characterProbabilityByPosition(words):
+    positionList = {}
+    for i in range(0,5):
+        probDict = {}
+        countDict = {}
+        listOfChars = []
+        letterSum = 0
+        for word in words:
+            listOfChars.append(word[i])
+        
+        for c in ascii_lowercase:
+            count = listOfChars.count(c)
+            countDict[c] = count
+            letterSum += count
+        
+        for c in countDict:
+            probDict[c] = countDict[c]/letterSum
+        
+        positionList[i]=probDict
+    print(positionList)
+    return positionList
+
+def sortWordsByLetterScore(words):
+    probList = characterProbabilityByPosition(words)
+    scoredDict = {}
+    for word in words:
+        score = 1
+        for i in range(0,4):
+            value = probList[i][word[i]]
+            if value != 0:
+                score *= value
+        scoredDict[word] = score
+    sorted_dict = collections.OrderedDict(sorted(scoredDict.items(), key=lambda kv: kv[1],reverse=True))
+    sorted_words = []
+    for key in sorted_dict.keys():
+        sorted_words.append(key)
+    printNum = min(5,len(sorted_words))
+    print("There are {} solutions, with the top {} being {}".format(len(sorted_words),printNum,sorted_words[0:printNum]))
+    if printNum == 5:
+        removeWordsWithDupLetters(sorted_words)
+    return sorted_words
+
 def sortWordsByScore(words):
     probDict = characterProbability(words)
     scoredDict = {}
@@ -115,7 +157,7 @@ def commandLineApp():
         ]  
 
     optionList = loadWords()
-    sortWordsByScore(optionList)
+    sortWordsByLetterScore(optionList)
 
     while True:
         success = input("Was the guess successful? (Y/n) ")
@@ -155,7 +197,7 @@ def commandLineApp():
             solutions2 = knownCharacters(solutions1,known) 
             optionList = possibleChars(solutions2,impossibleCharacters)
 
-        sortWordsByScore(optionList)
+        sortWordsByLetterScore(optionList)
 
 def manualSolver():
     banList = []
